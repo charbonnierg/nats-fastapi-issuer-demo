@@ -1,0 +1,25 @@
+{
+    "meta": {
+        "name": "demo_app",
+        "title": "Demo App",
+        "description": "A declarative FastAPI application \\ud83c\\udf89",
+        "version": "0.1.0"
+    },
+    "settings": "demo_app.settings.AppSettings",
+    "providers": [
+        "quara.wiring.providers.structured_logging_provider",
+        "quara.wiring.providers.prometheus_metrics_provider",
+        "quara.wiring.providers.openid_connect_provider",
+        "quara.wiring.providers.openelemetry_traces_provider",
+        "quara.wiring.providers.cors_provider",
+        "quara.wiring.providers.debug_provider"
+    ],
+    "routers": [
+        "demo_app.routes.issuer_router",
+        "demo_app.routes.nats_router"
+    ],
+    "hooks": [
+        "demo_app.hooks.issuer_hook"
+    ],
+    "config_file": "~/.quara.config.json"
+}

@@ -7,10 +7,10 @@ import fastapi
 from nats import NATS
 from structlog import get_logger
 
+from quara.wiring.providers.oidc import get_user, UserClaims
+
 from demo_app.hooks.issuer import issuer
 from demo_app.lib.issuer import Issuer, NATSAttrs
-from demo_app.providers.oidc import get_user
-from demo_app.providers.oidc.models import UserClaims
 
 logger = get_logger()
 router = fastapi.APIRouter(

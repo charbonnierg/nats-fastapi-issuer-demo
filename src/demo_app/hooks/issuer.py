@@ -7,14 +7,15 @@ import typing
 
 from starlette.requests import Request
 
-from demo_app.container import AppContainer
+from quara.wiring.core import Container
+
 from demo_app.lib.issuer import Issuer, IssuerConfig
 from demo_app.settings import AppSettings
 
 
 @contextlib.asynccontextmanager
 async def issuer_hook(
-    container: AppContainer[AppSettings],
+    container: Container[AppSettings],
 ) -> typing.AsyncIterator[Issuer]:
     """Setup issuer for the application"""
     # Parse config

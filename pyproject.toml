@@ -3,7 +3,10 @@ name = "demo-app"
 version = "0.0.1"
 description = "Final app"
 authors = ["Guillaume Charbonnier <gu.charbon@gmail.com>"]
-
+packages = [
+    { include = "demo_app", from = "src" },
+    { include = "quara", from = "src" },
+]
 [tool.poetry.dependencies]
 python = ">=3.8,<=3.10"
 # Rest API Framework
@@ -29,6 +32,8 @@ mypy = { version = "^0.942", optional = true }
 types-setuptools = { version = "^57.4.12", optional = true }
 nats-py = "^2.1.0"
 nkeys = "^0.1.0"
+PyYAML = "^6.0"
+setuptools = "*"
 
 [tool.poetry.extras]
 dev = ["flake8", "black", "isort", "mypy", "types-setuptools"]

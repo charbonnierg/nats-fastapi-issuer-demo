@@ -64,9 +64,9 @@ Application can be configured using environment variables or file.
 
 ## Design choices
 
-Application is wrapped within an `AppContainer`.
+Application is wrapped within a `Container`.
 
-An `AppContainer` is created from:
+An `Container` is created from:
 
 - _Some **settings**_: settings are defined as pydantic models. When they are not provided directly, values are parsed from environment or file.
 
