@@ -3,11 +3,12 @@ from __future__ import annotations
 import os
 import platform
 import sys
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 import fastapi
 
 from demo_app.providers.oidc import UserClaims, get_user
+from demo_app.settings import BaseAppSettings
 
 from ..container import AppContainer, AppSettings
 
@@ -16,6 +17,13 @@ router = fastapi.APIRouter(
     tags=["Debug"],
     default_response_class=fastapi.responses.JSONResponse,
 )
+
+
+def conditional_router(container: AppContainer[BaseAppSettings]) -> Optional[fastapi.APIRouter]:
+    global router
+    if container.settings.server.debug:
+        return router
+    return None
 
 
 @router.get("/settings", summary="Get application settings", response_model=AppSettings)

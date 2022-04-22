@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import asyncio
 import contextlib
+from ctypes import Union
 import dataclasses
 import pathlib
 import sys
@@ -13,6 +14,8 @@ import types
 import typing
 
 import fastapi
+from pydantic import BaseModel, Field, PyObject
+from pydantic.generics import GenericModel
 import uvicorn
 
 from .errors import ERROR_HANDLERS
@@ -24,7 +27,7 @@ if typing.TYPE_CHECKING:
 
 T = typing.TypeVar("T")
 SettingsT = typing.TypeVar("SettingsT", bound=BaseAppSettings)
-
+ContainerT = typing.TypeVar("ContainerT", bound="AppContainer")
 
 @dataclasses.dataclass
 class AppContainer(typing.Generic[SettingsT]):
@@ -357,3 +360,61 @@ class AppTask(typing.Generic[T]):
             return request.app.state.container.submitted_tasks[key]  # type: ignore[no-any-return]
 
         return fastapi.Depends(get_task)
+
+
+
+class AppContainerSpec(BaseModel):
+    meta: PyObject
+    settings: PyObject
+    routers: typing.List[PyObject] = []
+    hooks: typing.List[PyObject] = []
+    tasks: typing.List[PyObject] = []
+    providers: typing.List[PyObject] = []
+    config_file: typing.Union[str, pathlib.Path, None] = None
+
+    @typing.overload
+    def create_container(
+        self,
+        container_factory: typing.Type[ContainerT],
+        meta: typing.Union[typing.Dict[str, typing.Any], BaseModel, None] = None,
+        settings: typing.Union[typing.Dict[str, typing.Any], BaseModel, None] = None,
+        config_file: typing.Union[str, pathlib.Path, None] = None,
+    ) -> ContainerT:
+        ...
+
+    @typing.overload
+    def create_container(
+        self,
+        container_factory: None = None,
+        meta: typing.Union[typing.Dict[str, typing.Any], BaseModel, None] = None,
+        settings: typing.Union[typing.Dict[str, typing.Any], BaseModel, None] = None,
+        config_file: typing.Union[str, pathlib.Path, None] = None,
+    ) -> AppContainer[BaseAppSettings]:
+        ...
+
+    def create_container(
+        self,
+        container_factory: typing.Optional[typing.Type[AppContainer[BaseAppSettings]]] = None,
+        meta: typing.Union[typing.Dict[str, typing.Any], BaseModel, None] = None,
+        settings: typing.Union[typing.Dict[str, typing.Any], BaseModel, None] = None,
+        config_file: typing.Union[str, pathlib.Path, None] = None,
+    ) -> AppContainer[BaseAppSettings]:
+        if isinstance(meta, BaseModel):
+            meta = meta.dict(exclude_unset=True)
+        elif meta is None:
+            meta = {}
+        if isinstance(settings, BaseModel):
+            settings = settings.dict(exclude_unset=True)
+        elif settings is None:
+            settings = {}
+        if container_factory is None:
+            container_factory = AppContainer[BaseAppSettings]
+        return container_factory(
+            meta=self.meta(**meta),
+            settings=self.settings(**settings),
+            routers=self.routers,
+            hooks=self.hooks,
+            tasks=self.tasks,
+            providers=self.providers,
+            config_file=config_file or self.config_file
+        )

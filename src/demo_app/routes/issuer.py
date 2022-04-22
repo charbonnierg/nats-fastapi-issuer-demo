@@ -22,14 +22,12 @@ router = fastapi.APIRouter(
     "/account/keys",
     summary="Return issuer public keys.",
     status_code=200,
-    # response_model=typing.List[EmployeeInDB],
 )
 async def get_issuer_infos(
     issuer: Issuer = fastapi.Depends(issuer),
     user: UserClaims = get_user()
-    # logger: BoundLogger = fastapi.Depends(logger),
 ) -> typing.Dict[str, str]:
-    """Get all employees data."""
+    """Get issuer account public keys"""
     return {
         "account_key": issuer.config.account_public_key,
         "signing_key": issuer.keypair.public_key.decode(),
@@ -64,9 +62,7 @@ async def get_current_user(
 @router.post(
     "/users/me/creds",
     summary="Return credentials for current user",
-    response_class=fastapi.Response,
     status_code=202,
-    # response_model=typing.List[EmployeeInDB],
 )
 async def get_current_user_credentials(
     issuer: Issuer = fastapi.Depends(issuer),
@@ -91,7 +87,6 @@ async def get_current_user_credentials(
     summary="Return JWT for current user",
     response_class=fastapi.Response,
     status_code=202,
-    # response_model=typing.List[EmployeeInDB],
 )
 async def get_current_user_jwt(
     issuer: Issuer = fastapi.Depends(issuer),
