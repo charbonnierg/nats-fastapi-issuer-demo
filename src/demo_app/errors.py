@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import sys
-from distutils.log import error
 from typing import Any, Callable, Coroutine, Dict, Type, Union
 
 from starlette.requests import Request

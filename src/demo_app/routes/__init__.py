@@ -1,5 +1,5 @@
-from .debug import router as debug_router
 from .debug import conditional_router as conditional_debug_router
+from .debug import router as debug_router
 from .issuer import router as issuer_router
 from .nats import router as nats_router
 

@@ -19,7 +19,9 @@ router = fastapi.APIRouter(
 )
 
 
-def conditional_router(container: AppContainer[BaseAppSettings]) -> Optional[fastapi.APIRouter]:
+def conditional_router(
+    container: AppContainer[BaseAppSettings],
+) -> Optional[fastapi.APIRouter]:
     global router
     if container.settings.server.debug:
         return router

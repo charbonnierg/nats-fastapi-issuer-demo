@@ -398,7 +398,7 @@ def create_user(
     nats: Optional[NATSAttrs] = None,
     name: Optional[str] = None,
     account_public_key: Union[str, bytes, None] = None,
-) -> Tuple[JWT, bytes, nkeys.KeyPair,]:
+) -> Tuple[JWT, bytes, nkeys.KeyPair]:
     # Load signing keys
     signing_keypair = load_keys(signing_nkeys)
     # New user nkey (nkey seed and public key)

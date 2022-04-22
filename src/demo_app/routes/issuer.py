@@ -24,8 +24,7 @@ router = fastapi.APIRouter(
     status_code=200,
 )
 async def get_issuer_infos(
-    issuer: Issuer = fastapi.Depends(issuer),
-    user: UserClaims = get_user()
+    issuer: Issuer = fastapi.Depends(issuer), user: UserClaims = get_user()
 ) -> typing.Dict[str, str]:
     """Get issuer account public keys"""
     return {

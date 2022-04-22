@@ -6,7 +6,6 @@ from __future__ import annotations
 
 import asyncio
 import contextlib
-from ctypes import Union
 import dataclasses
 import pathlib
 import sys
@@ -14,9 +13,8 @@ import types
 import typing
 
 import fastapi
-from pydantic import BaseModel, Field, PyObject
-from pydantic.generics import GenericModel
 import uvicorn
+from pydantic import BaseModel, PyObject
 
 from .errors import ERROR_HANDLERS
 from .settings import AppMeta, AppSettings, BaseAppSettings, ConfigFilesSettings
@@ -28,6 +26,7 @@ if typing.TYPE_CHECKING:
 T = typing.TypeVar("T")
 SettingsT = typing.TypeVar("SettingsT", bound=BaseAppSettings)
 ContainerT = typing.TypeVar("ContainerT", bound="AppContainer")
+
 
 @dataclasses.dataclass
 class AppContainer(typing.Generic[SettingsT]):
@@ -362,7 +361,6 @@ class AppTask(typing.Generic[T]):
         return fastapi.Depends(get_task)
 
 
-
 class AppContainerSpec(BaseModel):
     meta: PyObject
     settings: PyObject
@@ -394,7 +392,9 @@ class AppContainerSpec(BaseModel):
 
     def create_container(
         self,
-        container_factory: typing.Optional[typing.Type[AppContainer[BaseAppSettings]]] = None,
+        container_factory: typing.Optional[
+            typing.Type[AppContainer[BaseAppSettings]]
+        ] = None,
         meta: typing.Union[typing.Dict[str, typing.Any], BaseModel, None] = None,
         settings: typing.Union[typing.Dict[str, typing.Any], BaseModel, None] = None,
         config_file: typing.Union[str, pathlib.Path, None] = None,
@@ -416,5 +416,5 @@ class AppContainerSpec(BaseModel):
             hooks=self.hooks,
             tasks=self.tasks,
             providers=self.providers,
-            config_file=config_file or self.config_file
+            config_file=config_file or self.config_file,
         )

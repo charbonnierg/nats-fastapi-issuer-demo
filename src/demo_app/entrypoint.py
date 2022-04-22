@@ -3,14 +3,15 @@
 Routers and hooks are registered in this module.
 """
 from __future__ import annotations
+
 import pathlib
 import typing
 
 from fastapi import FastAPI
 
 from demo_app.settings import AppSettings
-from .container import AppContainerSpec, AppContainer
 
+from .container import AppContainer, AppContainerSpec
 
 # We can describe our application using import strings !
 # This is extremely useful because it allows parsing application from JSON/YAML files
@@ -41,7 +42,7 @@ app_spec = AppContainerSpec(
         "demo_app.providers.tracing.openelemetry_traces_provider",
         # Add OpenID Connect authentication (optional)
         "demo_app.providers.oidc.oidc_provider",
-    ]
+    ],
 )
 
 
@@ -56,7 +57,12 @@ def create_container(
         A new application container.
     """
     # Create an application container
-    return app_spec.create_container(container_factory=AppContainer[AppSettings], meta=meta, settings=settings, config_file=config_file)
+    return app_spec.create_container(
+        container_factory=AppContainer[AppSettings],
+        meta=meta,
+        settings=settings,
+        config_file=config_file,
+    )
 
 
 def create_app(
