@@ -1,0 +1,48 @@
+[tool.poetry]
+name = "demo-app"
+version = "0.0.1"
+description = "Final app"
+authors = ["Guillaume Charbonnier <gu.charbon@gmail.com>"]
+
+[tool.poetry.dependencies]
+python = ">=3.8,<=3.10"
+# Rest API Framework
+fastapi = "^0.75.1"
+# HTTP Server
+uvicorn = "^0.17.6"
+# Logging framework
+structlog = "^21.5.0"
+# OpenID Connect deps
+cryptography = { version = "^36.0.2", optional = true }
+httpx = { version = "^0.22.0", optional = true }
+PyJWT = { version = "^2.3.0", optional = true }
+# Telemetry deps
+prometheus-fastapi-instrumentator = { version = "^5.7.1", optional = true }
+opentelemetry-instrumentation-fastapi = { version = "^0.29-beta.0", optional = true }
+opentelemetry-sdk = { version = "^1.10.0", optional = true }
+opentelemetry-exporter-otlp-proto-grpc = { version = "^1.10.0", optional = true }
+# Development tools
+flake8 = { version = "^4.0.1", optional = true }
+black = { version = "^22.3.0", optional = true }
+isort = { version = "^5.10.1", optional = true }
+mypy = { version = "^0.942", optional = true }
+types-setuptools = { version = "^57.4.12", optional = true }
+nats-py = "^2.1.0"
+nkeys = "^0.1.0"
+
+[tool.poetry.extras]
+dev = ["flake8", "black", "isort", "mypy", "types-setuptools"]
+telemetry = [
+    "prometheus-fastapi-instrumentator",
+    "opentelemetry-instrumentation-fastapi",
+    "opentelemetry-sdk",
+    "opentelemetry-exporter-otlp-proto-http",
+]
+oidc = ["cryptography", "httpx", "PyJWT"]
+
+[tool.poetry.scripts]
+demo-app = "demo_app.cli:run"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
