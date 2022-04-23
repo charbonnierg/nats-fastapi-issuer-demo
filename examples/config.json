@@ -1,0 +1,26 @@
+{
+    "logging": {
+        "level": "DEBUG",
+        "renderer": "console"
+    },
+    "server": {
+        "port": 7777,
+        "debug": true
+    },
+    "issuer": {
+        "account_public_key": "ACLXO7K66J6VZQHBYJIN7RRKC436UZSYORAINSJK73EU7ENER6O2S2S4"
+    },
+    "issuer_files": {
+        "account_signing_key_file": "/sandbox/keys-02/account/QUARA/keys/account-signing.nk"
+    },
+    "oidc": {
+        "enabled": true,
+        "issuer_url": "https://lemur-10.cloud-iam.com/auth/realms/demo-app",
+        "client_id": "demo-app"
+    },
+    "telemetry": {
+        "traces_enabled": true,
+        "metrics_enabled": true,
+        "traces_exporter": "memory"
+    }
+}

@@ -1,5 +1,11 @@
 ## Install
 
+#### Install using poetry
+
+```bash
+poetry install
+```
+
 #### Install using script
 
 ```bash
@@ -8,55 +14,57 @@ python ./install.py
 
 #### Install manually
 
-The script performs the following steps:
-
-- create a virtual environment:
+- Create a virtual environment:
 
 ```bash
 python -m venv .venv
 ```
 
-- update python package toolkit (within the virtual environment):
+- Update python package toolkit (within the virtual environment):
 
 ```bash
 python -m pip install -U pip setuptools wheel build
 ```
 
-- install the project in editable mode (within the virtual environment):
+- Install the project in editable mode (within the virtual environment) with all extras:
 
 ```bash
-python -m pip install -e .[dev]
+python -m pip install -e .[dev,oidc,telemetry]
 ```
 
 ## Run the app
 
-- Either use the `demo_app` module:
+- Either use the `quara.wiring` module:
 
 ```bash
-python -m demo_app
+python -m quara.wiring examples/app.yaml -c examples/config.json
 ```
 
 - The command line interface:
 
 ```bash
-demo-app
+wire --help
 ```
 
 - Or use `uvicorn` to start the application:
 
 ```bash
-uvicorn --factory demo_app.entrypoint:create_app
+CONFIG_FILEPATH=examples/config.json uvicorn --factory demo_app.spec:spec.create_app
 ```
+
+> Note that server config won't be applied since uvicorn is started from command line and not within Python process in this case.
 
 - It's also possible to start the application with hot-reloading:
 
 ```bash
-uvicorn --factory demo_app.entrypoint:create_app --reload
+CONFIG_FILEPATH=examples/config.json uvicorn --factory demo_app.spec:spec.create_app --reload
 ```
 
 ## Configure the app
 
-Application can be configured using environment variables or file.
+Application can be configured using environment variables or file, or options when using the CLI:
+
+![App Container](./docs/settings-to-container.png)
 
 > Note: Environment variables take precedence over variables declared in file. For example, assuming the above configuration is declared in a file named `config.json`, when running: `PORT=8000 CONFIG_FILE=./demo/config.json python -m demo_app`, application will listen on port `8000` and not `7777`.
 
@@ -64,23 +72,21 @@ Application can be configured using environment variables or file.
 
 ## Design choices
 
-Application is wrapped within an `AppContainer`.
+Application is wrapped within a [`Container`](./src/quara-wiring/quara/wiring/core/container.py):
 
-An `AppContainer` is created from:
+An [`Container`](./src/quara-wiring/quara/wiring/core/container.py) is created from:
 
-- _Some **settings**_: settings are defined as pydantic models. When they are not provided directly, values are parsed from environment or file.
+- _Some [**settings**](./src/quara-wiring/quara/wiring/core/settings.py)_: settings are defined as pydantic models. When they are not provided directly, values are parsed from environment or file.
 
-- _Some **hooks**_: hooks are coroutine functions which can inject arbitrary resources into application state. In this application, a hook is used to add an `Issuer` instance to the application state.
+- _Some **hooks**_: hooks are async context managers which can inject arbitrary resources into application state. In this application, a hook is used to add an `Issuer` instance to the application state. See documentation on [Asynchronous Context Managers](https://docs.python.org/3/reference/datamodel.html#asynchronous-context-managers) and [@contextlib.asynccontextmanager](https://docs.python.org/3/library/contextlib.html#contextlib.asynccontextmanager) to easily create context managers from coroutine functions. You can see how it's used in [the hook used by the example application](https://github.com/charbonnierg/nats-fastapi-issuer-demo/blob/declarative/src/demo-app/demo_app/hooks/issuer.py).
 
-- _Some **providers**_: providers are functions which can add additional features to the application. They are executed before the application is initialized, unlike hooks, which are started after application is initiliazed, but before application is started. In this application, two providers are used to optionally enable prometheus metrics and opentelemetry traces.
+- _Some **providers**_: providers are functions which must accept a single argument, an application container, and can add additional features to the application. They are executed before the FastAPI application is initialized, unlike hooks, which are started after application is initiliazed, but before it is started. In the repo example, providers are used for example to optionally enable prometheus metrics and opentelemetry traces. The [CORS Provider](https://github.com/charbonnierg/nats-fastapi-issuer-demo/blob/declarative/src/quara-wiring/quara/wiring/providers/cors.py) is surely the most simple provider.
 
-- _Some **routers**_: routers are objects holding a bunch of API endpoints together. Those endpoints can share a prefix and some OpenAPI metadata.
+- _Some [**routers**](https://fastapi.tiangolo.com/tutorial/bigger-applications/#apirouter)_: routers are objects holding a bunch of API endpoints together. Those endpoints can share a prefix and some OpenAPI metadata.
 
-The application container is defined in `demo_app/entrypoint.py`.
+In order to faciliate creation and declaration of application containers, the [`AppSpec`](./src/quara-wiring/quara/wiring/core/spec.py) class can be used as a container factory.
 
-In order to add new capabilities to the application (routers, providers or hooks), the `create_container` function should be updated.
-
-![App Lifecycle](./lifecycle.png)
+> See usage in [`src/demo-app/demo_app/spec.py`](./src/demo-app/demo_app/spec.py)
 
 ## Objectives
 
@@ -96,39 +102,105 @@ In order to add new capabilities to the application (routers, providers or hooks
 
 - [x] **Observable**: Adding metrics or tracing capabilities to the application should be straighforward and transparent.
 
-- [x] **Explicit**: Router endpoints must not use global variables but instead explicitely declare dependencies to be injected (such as database client or settings). This enables efficient sharing of resources and facilitate eventual refactoring in the future.
+- [x] **Explicit**: Router endpoints must not use global variables but instead explicitely declare dependencies to be injected (such as database client or settings). This enables [efficient sharing of resources and facilitate eventual refactoring in the future](https://github.com/charbonnierg/nats-fastapi-issuer-demo/blob/9beb7e4f1d37d616de10ab701cbde7fe1115f2a2/src/demo-app/demo_app/routes/demo.py#L34).
 
 - [x] **Global error handling**: Error handlers are used to transforme raised exception into HTTP responses with appropriate status code. This minimize boilerplate code required to catch exceptions in every endpoint, and encourage developers to raise known exceptions in library code.
 
-- [x] **Scalable**: Including additional routers or features in the future should require minimal work.
+- [x] **Conposable**: Including additional routers or features in the future should require minimal work.
 
   - Arbitrary hooks with access to application container within their scope can be registered. Those hooks are guaranteed to be started and stopped in order, and even if an exception is encountered during a hook exit, all remaining hooks will be closed before an exception is raised. It minimize risk of resource leak within the application. Hooks can be seen as contexts just like in the illustration below:
 
+  - Arbitrary tasks can be started along the application. Tasks are similar to hooks, and are defined using a coroutine function which takes the application container as argument and can stay alive as long as application
+  is alive. Unlike hooks, tasks have a status and can be:
+    - stopped
+    - started
+    - restarted
+  It's also possible to fetch the task status to create healthcheck handlers for example.
+
   - Arbitrary providers with access to application container within their scope can be registered. Those providers are executed once, before the application is created. They can be used to add optional features such as tracing or metrics.
+  
+  - Objects provided by hooks or providers can be accessed through dependency injection in the API endpoints. Check [this example](https://github.com/charbonnierg/nats-fastapi-issuer-demo/blob/9beb7e4f1d37d616de10ab701cbde7fe1115f2a2/src/demo-app/demo_app/routes/demo.py#L34) to see dependency injection in practice.
 
-![Application resources lifecyle](./resources.png)
+Below is an illustration of an hypothetic application lifecycle:
 
-## Adding a hook to the application
+![App Lifecycle](./docs/container-lifecycle.png)
 
-Update the file `demo_app/entrypoint.py` to add a new hook to your application.
+## Declarative application
+
+It's possible to declare application using YAML, JSON or INI files. An example application could be:
+
+```yaml
+---
+# Application metadata
+meta:
+  name: demo_app
+  title: Demo App
+  description: A declarative FastAPI application 🎉
+  package: demo-app
+
+# Custom settings model
+settings: demo_app.settings.AppSettings
+
+# Declare providers
+# A few providers are available to use directly
+# It's quite easy to add new providers
+providers:
+  - quara.wiring.providers.structured_logging_provider
+  - quara.wiring.providers.prometheus_metrics_provider
+  - quara.wiring.providers.openid_connect_provider
+  - quara.wiring.providers.openelemetry_traces_provider
+  - quara.wiring.providers.cors_provider
+  - quara.wiring.providers.debug_provider
+# It's possible to add routers
+routers:
+  - demo_app.routes.issuer_router
+  - demo_app.routes.nats_router
+  - demo_app.routes.demo_router
+# Or hooks
+hooks:
+  - demo_app.hooks.issuer_hook
+# Or tasks (not used in this example)
+tasks: []
+# # It's also possible to declare default config file
+# config_file: ~/.quara.config.json
+```
+
+## `AppSpec` container factory
+
+It's also possible to define applications using a python object instead of a text file.
+
+The `AppSpec` class can be used to create application containers according to an application specification.
+
+### Adding new hooks
+
+Update the file `demo_app/spec.py` to add a new hook to your application.
+
+The `hooks` argument of the `AppSpec` constructor can be used to specify a list of hooks used by the application.
+
+Each hook must implement the `AsyncContextManager` protocol or be functions which might return `None` or an `AsyncContextManager` instance.
+
+Object yielded by the hook is available in API endpoints using dependency injection.
 
 > Note: It's possible to access any container attribute within hooks.
 
-> Note: You may want to implement your router as a new module located in `hooks/` directory.
+### Adding new routers
 
-## Adding a router to the application
+Update the file `demo_app/spec.py` to register a new router within your application.
 
-Update the file `demo_app/entrypoint.py` to register a new router within your application.
+The `routers` argument of the `AppSpec` constructor can be used to specify a list of routers used by the application.
 
-> Note: You may want to implement your router as a new module located in `routes/` directory.
+Both `fastapi.APIRouter` and functions which might return `None` or an `fastapi.APIRouter` instance are accepted as list items.
+
 
 ## Adding providers to the application
 
 Providers are functions which can modify the FastAPI application before it is started.
 
-They must accept an application container instance as unique argument, and should not return a value.
+They must accept an application container instance as unique argument, and can return a list of objects or None.
+When None is returned, it is assumed that provider is disabled.
+When a list is returned, each object present in the list will be available in API endpoints using dependency injection.
 
-Example providers are located in `demo_app/contribs/` directory and are registered in `demo_app/entrypoint.py`.
+Example providers are located in `src/quara-wiring/quara/wiring/providers/` directory and are registered in `demo_app/spec.py`.
 
 ## Building the application
 
