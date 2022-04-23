@@ -78,11 +78,11 @@ An `Container` is created from:
 
 - _Some **routers**_: routers are objects holding a bunch of API endpoints together. Those endpoints can share a prefix and some OpenAPI metadata.
 
-The application container is defined in `demo_app/entrypoint.py`.
+![App Container](./docs/settings-to-container.png)
 
-In order to add new capabilities to the application (routers, providers or hooks), the `create_container` function should be updated.
+The application container factory is defined in `demo_app/spec.py`.
 
-![App Lifecycle](./docs/lifecycle.png)
+In order to add new capabilities to the application (routers, providers or hooks), the `AppSpec` definition should be updated.
 
 ## Objectives
 
@@ -117,12 +117,13 @@ In order to add new capabilities to the application (routers, providers or hooks
   
   - Objects provided by hooks or providers can be accessed through dependency injection in the API endpoints.
 
+Below is an illustration of an hypothetic application lifecycle:
 
-![Application resources lifecyle](./docs/resources.png)
+![App Lifecycle](./docs/container-lifecycle.png)
 
 ## Adding a hook to the application
 
-Update the file `demo_app/entrypoint.py` to add a new hook to your application.
+Update the file `demo_app/spec.py` to add a new hook to your application.
 
 > Note: It's possible to access any container attribute within hooks.
 
@@ -130,7 +131,7 @@ Update the file `demo_app/entrypoint.py` to add a new hook to your application.
 
 ## Adding a router to the application
 
-Update the file `demo_app/entrypoint.py` to register a new router within your application.
+Update the file `demo_app/spec.py` to register a new router within your application.
 
 > Note: You may want to implement your router as a new module located in `routes/` directory.
 
@@ -140,7 +141,7 @@ Providers are functions which can modify the FastAPI application before it is st
 
 They must accept an application container instance as unique argument, and should not return a value.
 
-Example providers are located in `demo_app/contribs/` directory and are registered in `demo_app/entrypoint.py`.
+Example providers are located in `src/quara-wiring/quara/wiring/providers/` directory and are registered in `demo_app/spec.py`.
 
 ## Building the application
 
