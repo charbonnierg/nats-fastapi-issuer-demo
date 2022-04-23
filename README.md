@@ -62,7 +62,9 @@ CONFIG_FILEPATH=examples/config.json uvicorn --factory demo_app.spec:spec.create
 
 ## Configure the app
 
-Application can be configured using environment variables or file.
+Application can be configured using environment variables or file, or options when using the CLI:
+
+![App Container](./docs/settings-to-container.png)
 
 > Note: Environment variables take precedence over variables declared in file. For example, assuming the above configuration is declared in a file named `config.json`, when running: `PORT=8000 CONFIG_FILE=./demo/config.json python -m demo_app`, application will listen on port `8000` and not `7777`.
 
@@ -70,23 +72,21 @@ Application can be configured using environment variables or file.
 
 ## Design choices
 
-Application is wrapped within a `Container`.
+Application is wrapped within a [`Container`](./src/quara-wiring/quara/wiring/core/container.py):
 
-An `Container` is created from:
+An [`Container`](./src/quara-wiring/quara/wiring/core/container.py) is created from:
 
-- _Some **settings**_: settings are defined as pydantic models. When they are not provided directly, values are parsed from environment or file.
+- _Some [**settings**](./src/quara-wiring/quara/wiring/core/settings.py)_: settings are defined as pydantic models. When they are not provided directly, values are parsed from environment or file.
 
-- _Some **hooks**_: hooks are coroutine functions which can inject arbitrary resources into application state. In this application, a hook is used to add an `Issuer` instance to the application state.
+- _Some **hooks**_: hooks are async context managers which can inject arbitrary resources into application state. In this application, a hook is used to add an `Issuer` instance to the application state. See documentation on [Asynchronous Context Managers](https://docs.python.org/3/reference/datamodel.html#asynchronous-context-managers) and [@contextlib.asynccontextmanager](https://docs.python.org/3/library/contextlib.html#contextlib.asynccontextmanager) to easily create context managers from coroutine functions.
 
-- _Some **providers**_: providers are functions which can add additional features to the application. They are executed before the application is initialized, unlike hooks, which are started after application is initiliazed, but before application is started. In this application, two providers are used to optionally enable prometheus metrics and opentelemetry traces.
+- _Some **providers**_: providers are functions which must accept a single argument, an application container, and can add additional features to the application. They are executed before the FastAPI application is initialized, unlike hooks, which are started after application is initiliazed, but before it is started. In the repo example, providers are used for example to optionally enable prometheus metrics and opentelemetry traces.
 
-- _Some **routers**_: routers are objects holding a bunch of API endpoints together. Those endpoints can share a prefix and some OpenAPI metadata.
+- _Some [**routers**](https://fastapi.tiangolo.com/tutorial/bigger-applications/#apirouter)_: routers are objects holding a bunch of API endpoints together. Those endpoints can share a prefix and some OpenAPI metadata.
 
-![App Container](./docs/settings-to-container.png)
+In order to faciliate creation and declaration of application containers, the [`AppSpec`](./src/quara-wiring/quara/wiring/core/spec.py) class can be used as a container factory.
 
-The application container factory is defined in `demo_app/spec.py`.
-
-In order to add new capabilities to the application (routers, providers or hooks), the `AppSpec` definition should be updated.
+> See usage in [`src/demo-app/demo_app/spec.py`](./src/demo-app/demo_app/spec.py)
 
 ## Objectives
 
