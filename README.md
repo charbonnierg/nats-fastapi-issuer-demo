@@ -102,7 +102,7 @@ In order to faciliate creation and declaration of application containers, the [`
 
 - [x] **Observable**: Adding metrics or tracing capabilities to the application should be straighforward and transparent.
 
-- [x] **Explicit**: Router endpoints must not use global variables but instead explicitely declare dependencies to be injected (such as database client or settings). This enables efficient sharing of resources and facilitate eventual refactoring in the future.
+- [x] **Explicit**: Router endpoints must not use global variables but instead explicitely declare dependencies to be injected (such as database client or settings). This enables [efficient sharing of resources and facilitate eventual refactoring in the future](https://github.com/charbonnierg/nats-fastapi-issuer-demo/blob/9beb7e4f1d37d616de10ab701cbde7fe1115f2a2/src/demo-app/demo_app/routes/demo.py#L34).
 
 - [x] **Global error handling**: Error handlers are used to transforme raised exception into HTTP responses with appropriate status code. This minimize boilerplate code required to catch exceptions in every endpoint, and encourage developers to raise known exceptions in library code.
 
@@ -119,7 +119,7 @@ In order to faciliate creation and declaration of application containers, the [`
 
   - Arbitrary providers with access to application container within their scope can be registered. Those providers are executed once, before the application is created. They can be used to add optional features such as tracing or metrics.
   
-  - Objects provided by hooks or providers can be accessed through dependency injection in the API endpoints.
+  - Objects provided by hooks or providers can be accessed through dependency injection in the API endpoints. Check [this example](https://github.com/charbonnierg/nats-fastapi-issuer-demo/blob/9beb7e4f1d37d616de10ab701cbde7fe1115f2a2/src/demo-app/demo_app/routes/demo.py#L34) to see dependency injection in practice.
 
 Below is an illustration of an hypothetic application lifecycle:
 
