@@ -1,4 +1,14 @@
-## Install
+## Install from pypi
+
+A pre-release has been published on pypi with the name `fastapi-wire`. To install it simply run:
+
+```bash
+python -m pip install fastapi-wire
+```
+
+## Install from source
+
+First clone the repository from [github](https://github.com/charbonnierg/nats-fastapi-issuer-demo) then install using one of the method below.
 
 #### Install using poetry
 
@@ -34,10 +44,10 @@ python -m pip install -e .[dev,oidc,telemetry]
 
 ## Run the app
 
-- Either use the `quara.wiring` module:
+- Either use the `wire` module:
 
 ```bash
-python -m quara.wiring examples/app.yaml -c examples/config.json
+python -m wire examples/app.yaml -c examples/config.json
 ```
 
 - The command line interface:
@@ -64,7 +74,7 @@ CONFIG_FILEPATH=examples/config.json uvicorn --factory demo_app.spec:spec.create
 
 Application can be configured using environment variables or file, or options when using the CLI:
 
-![App Container](./docs/settings-to-container.png)
+![App Container](https://github.com/charbonnierg/nats-fastapi-issuer-demo/raw/next/docs/settings-to-container.png)
 
 > Note: Environment variables take precedence over variables declared in file. For example, assuming the above configuration is declared in a file named `config.json`, when running: `PORT=8000 CONFIG_FILE=./demo/config.json python -m demo_app`, application will listen on port `8000` and not `7777`.
 
@@ -121,7 +131,7 @@ In order to faciliate creation and declaration of application containers, the [`
 
 Below is an illustration of an hypothetic application lifecycle:
 
-![App Lifecycle](./docs/container-lifecycle.png)
+![App Lifecycle](https://github.com/charbonnierg/nats-fastapi-issuer-demo/raw/next/docs/container-lifecycle.png)
 
 ## Declarative application
 
@@ -134,7 +144,7 @@ meta:
   name: demo_app
   title: Demo App
   description: A declarative FastAPI application 🎉
-  package: demo-app
+  package: wire
 
 # Custom settings model
 settings: demo_app.settings.AppSettings
@@ -143,12 +153,12 @@ settings: demo_app.settings.AppSettings
 # A few providers are available to use directly
 # It's quite easy to add new providers
 providers:
-  - quara.wiring.providers.structured_logging_provider
-  - quara.wiring.providers.prometheus_metrics_provider
-  - quara.wiring.providers.openid_connect_provider
-  - quara.wiring.providers.openelemetry_traces_provider
-  - quara.wiring.providers.cors_provider
-  - quara.wiring.providers.debug_provider
+  - wire.providers.structured_logging_provider
+  - wire.providers.prometheus_metrics_provider
+  - wire.providers.openid_connect_provider
+  - wire.providers.openelemetry_traces_provider
+  - wire.providers.cors_provider
+  - wire.providers.debug_provider
 # It's possible to add routers
 routers:
   - demo_app.routes.issuer_router

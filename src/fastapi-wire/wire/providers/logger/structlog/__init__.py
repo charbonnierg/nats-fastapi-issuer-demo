@@ -2,8 +2,8 @@ import logging
 import time
 from typing import Any, Awaitable, Callable, List, Union
 
-from quara.wiring.core.container import Container
-from quara.wiring.core.settings import BaseAppSettings
+from wire.core.container import Container
+from wire.core.settings import BaseAppSettings
 from starlette.requests import Request
 from starlette.responses import Response
 from uvicorn.config import LOG_LEVELS
@@ -12,7 +12,7 @@ from uvicorn.config import LOG_LEVELS
 def structured_logging_provider(container: Container[BaseAppSettings]) -> List[Any]:
     """Add structured logger to the application."""
     import structlog
-    from quara.wiring.providers.logger.structlog._log_levels import (
+    from wire.providers.logger.structlog._log_levels import (
         make_filtering_bound_logger,
     )
 

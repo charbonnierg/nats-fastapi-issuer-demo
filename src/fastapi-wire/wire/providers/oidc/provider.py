@@ -154,9 +154,7 @@ class OIDCAuth(SecurityBase, metaclass=Singleton):
             flows.password = OAuthFlowPassword(tokenUrl=token_url)
 
         if GrantType.IMPLICIT in grant_types:
-            flows.implicit = OAuthFlowImplicit(
-                authorizationUrl=authz_url, client_id="fastapi-demo-app-docs"
-            )
+            flows.implicit = OAuthFlowImplicit(authorizationUrl=authz_url)
 
         auth.model.flows = flows  # type: ignore[attr-defined]
         # Since the class generates singleton, it should modify the value everywhere it's used

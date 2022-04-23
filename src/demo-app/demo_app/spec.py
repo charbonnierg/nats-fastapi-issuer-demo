@@ -1,6 +1,6 @@
-import quara.wiring.providers
-from quara.wiring import AppSpec
-from quara.wiring.core.settings import AppMeta
+import wire.providers
+from wire import AppSpec
+from wire.core.settings import AppMeta
 
 from .hooks import issuer_hook
 from .routes import demo_router, issuer_router, nats_router
@@ -18,18 +18,18 @@ spec = AppSpec(
         name="demo_app",
         title="Demo App",
         description="A declarative FastAPI application 🎉",
-        package="demo-app",
+        package="wire",
     ),
     # Settings are parsed on application startup from environment, file and arguments provided
     settings=AppSettings,
     # We do not control lifecycle of providers
     providers=[
-        quara.wiring.providers.structured_logging_provider,
-        quara.wiring.providers.prometheus_metrics_provider,
-        quara.wiring.providers.openid_connect_provider,
-        quara.wiring.providers.openelemetry_traces_provider,
-        quara.wiring.providers.cors_provider,
-        quara.wiring.providers.debug_provider,
+        wire.providers.structured_logging_provider,
+        wire.providers.prometheus_metrics_provider,
+        wire.providers.openid_connect_provider,
+        wire.providers.openelemetry_traces_provider,
+        wire.providers.cors_provider,
+        wire.providers.debug_provider,
     ],
     # App is responsible for starting routers
     # Routers can have their own lifecycle hooks

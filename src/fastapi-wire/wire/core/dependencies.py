@@ -2,9 +2,9 @@ import typing as t
 
 from fastapi import Depends, Request
 from pydantic import BaseSettings
-from quara.wiring.core.container import Container
-from quara.wiring.core.settings import BaseAppSettings
-from quara.wiring.core.tasks import AppTask
+from wire.core.container import Container
+from wire.core.settings import BaseAppSettings
+from wire.core.tasks import AppTask
 
 # FIXME: All those operations should be available from the container itself
 # This way we could use methods in hooks/tasks/providers scopes and dependencies in endpoints.

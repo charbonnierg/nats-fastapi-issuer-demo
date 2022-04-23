@@ -3,7 +3,7 @@
 Note: Metadata are not parsed from environment.
 """
 import pydantic
-from quara.wiring.core import BaseAppSettings
+from wire.core import BaseAppSettings
 
 from .lib import IssuerFilesSettings, IssuerSettings
 

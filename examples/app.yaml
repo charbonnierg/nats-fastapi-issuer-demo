@@ -4,7 +4,7 @@ meta:
   name: demo_app
   title: Demo App
   description: A declarative FastAPI application 🎉
-  package: demo-app
+  package: fastapi-wire
 
 # Custom settings model
 settings: demo_app.settings.AppSettings
@@ -13,12 +13,12 @@ settings: demo_app.settings.AppSettings
 # A few providers are available to use directly
 # It's quite easy to add new providers
 providers:
-  - quara.wiring.providers.structured_logging_provider
-  - quara.wiring.providers.prometheus_metrics_provider
-  - quara.wiring.providers.openid_connect_provider
-  - quara.wiring.providers.openelemetry_traces_provider
-  - quara.wiring.providers.cors_provider
-  - quara.wiring.providers.debug_provider
+  - wire.providers.structured_logging_provider
+  - wire.providers.prometheus_metrics_provider
+  - wire.providers.openid_connect_provider
+  - wire.providers.openelemetry_traces_provider
+  - wire.providers.cors_provider
+  - wire.providers.debug_provider
 # It's possible to add routers
 routers:
   - demo_app.routes.issuer_router

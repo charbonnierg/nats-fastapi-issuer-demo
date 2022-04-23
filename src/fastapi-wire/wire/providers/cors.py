@@ -1,5 +1,5 @@
-from quara.wiring.core.container import Container
-from quara.wiring.core.settings import BaseAppSettings
+from wire.core.container import Container
+from wire.core.settings import BaseAppSettings
 from starlette.middleware.cors import CORSMiddleware
 
 

@@ -3,7 +3,7 @@
 import contextlib
 import typing
 
-from quara.wiring import Container
+from wire import Container
 
 from demo_app.lib import Issuer, IssuerConfig
 from demo_app.settings import AppSettings

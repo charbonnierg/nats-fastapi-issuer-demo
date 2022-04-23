@@ -5,7 +5,7 @@ from fastapi import APIRouter
 from fastapi.responses import JSONResponse
 from opentelemetry.trace import Span, Tracer
 from opentelemetry.trace.status import Status, StatusCode
-from quara.wiring import (
+from wire import (
     AppMeta,
     Container,
     get_container,
@@ -14,9 +14,9 @@ from quara.wiring import (
     get_resource,
     get_settings,
 )
-from quara.wiring.core.settings import LogSettings
-from quara.wiring.providers.oidc.provider import OIDCAuthProvider
-from quara.wiring.providers.tracing.opentelemetry import get_span, get_span_factory
+from wire.core.settings import LogSettings
+from wire.providers.oidc.provider import OIDCAuthProvider
+from wire.providers.tracing.opentelemetry import get_span, get_span_factory
 from structlog import get_logger
 
 from demo_app.lib import Issuer

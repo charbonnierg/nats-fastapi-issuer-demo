@@ -4,9 +4,9 @@ import sys
 from typing import Any, Dict, List, Optional
 
 import fastapi
-from quara.wiring import BaseAppSettings, Container, get_container, get_settings
-from quara.wiring.core.utils import fullname
-from quara.wiring.providers.oidc import get_user
+from wire import BaseAppSettings, Container, get_container, get_settings
+from wire.core.utils import fullname
+from wire.providers.oidc import get_user
 
 
 def _get_environment() -> Dict[str, Any]:

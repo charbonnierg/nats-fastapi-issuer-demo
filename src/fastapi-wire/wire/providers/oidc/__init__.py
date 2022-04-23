@@ -3,8 +3,8 @@ from typing import Any, List, Optional
 from fastapi import Depends, HTTPException, Security
 from fastapi.responses import PlainTextResponse
 from fastapi.security.utils import get_authorization_scheme_param
-from quara.wiring import BaseAppSettings, Container
-from quara.wiring.core.dependencies import get_container
+from wire import BaseAppSettings, Container
+from wire.core.dependencies import get_container
 from starlette.requests import Request
 from starlette.status import HTTP_403_FORBIDDEN
 
@@ -17,7 +17,7 @@ def openid_connect_provider(
 ) -> Optional[List[Any]]:
     if not container.settings.oidc.enabled:
         return None
-    from quara.wiring.providers.oidc.provider import OIDCAuth, OIDCAuthProvider
+    from wire.providers.oidc.provider import OIDCAuth, OIDCAuthProvider
 
     # Create oidc provider
     oidc = OIDCAuthProvider(
@@ -51,7 +51,7 @@ def openid_connect_provider(
 def get_user(roles: List[str] = [], all: bool = True) -> Any:
     """Get current user"""
 
-    from quara.wiring.providers.oidc.provider import OIDCAuth
+    from wire.providers.oidc.provider import OIDCAuth
 
     async def _get_current_user_with_roles(
         user: UserClaims = Security(OIDCAuth()),

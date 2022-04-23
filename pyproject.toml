@@ -1,12 +1,14 @@
 [tool.poetry]
-name = "demo-app"
-version = "0.0.1"
-description = "Final app"
+name = "fastapi-wire"
+version = "0.0.1-a4"
+description = "Build FastAPI applications easily"
 authors = ["Guillaume Charbonnier <gu.charbon@gmail.com>"]
 packages = [
     { include = "demo_app", from = "src/demo-app" },
-    { include = "quara", from = "src/quara-wiring" },
+    { include = "wire", from = "src/fastapi-wire" },
 ]
+readme = "README.md"
+
 [tool.poetry.dependencies]
 python = ">=3.8,<=3.10"
 # Rest API Framework
@@ -49,7 +51,7 @@ telemetry = [
 oidc = ["cryptography", "httpx", "PyJWT"]
 
 [tool.poetry.scripts]
-wire = "quara.wiring.cli:run"
+wire = "wire.cli:run"
 
 [build-system]
 requires = ["poetry-core"]

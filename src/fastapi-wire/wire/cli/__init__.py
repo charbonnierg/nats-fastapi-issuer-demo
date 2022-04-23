@@ -6,7 +6,7 @@ import argparse
 import typing
 from collections import defaultdict
 
-from quara.wiring.core.spec import create_container_from_specs
+from wire.core.spec import create_container_from_specs
 from structlog import get_logger
 
 main_parser = argparse.ArgumentParser(prog="wire", add_help=True)

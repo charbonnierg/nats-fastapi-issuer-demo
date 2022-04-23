@@ -2,7 +2,7 @@ import functools
 import typing as t
 
 from fastapi import Depends, Request
-from quara.wiring import BaseAppSettings, Container
+from wire import BaseAppSettings, Container
 
 AttributeValue = t.Union[
     str,
