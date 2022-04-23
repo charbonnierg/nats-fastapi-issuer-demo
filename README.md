@@ -1,5 +1,11 @@
 ## Install
 
+#### Install using poetry
+
+```bash
+poetry install
+```
+
 #### Install using script
 
 ```bash
@@ -8,32 +14,30 @@ python ./install.py
 
 #### Install manually
 
-The script performs the following steps:
-
-- create a virtual environment:
+- Create a virtual environment:
 
 ```bash
 python -m venv .venv
 ```
 
-- update python package toolkit (within the virtual environment):
+- Update python package toolkit (within the virtual environment):
 
 ```bash
 python -m pip install -U pip setuptools wheel build
 ```
 
-- install the project in editable mode (within the virtual environment):
+- Install the project in editable mode (within the virtual environment) with all extras:
 
 ```bash
-python -m pip install -e .[dev]
+python -m pip install -e .[dev,oidc,telemetry]
 ```
 
 ## Run the app
 
-- Either use the `demo_app` module:
+- Either use the `quara.wiring` module:
 
 ```bash
-python -m wire examples/app.yaml -c examples/config.json
+python -m quara.wiring examples/app.yaml -c examples/config.json
 ```
 
 - The command line interface:
@@ -45,7 +49,7 @@ wire --help
 - Or use `uvicorn` to start the application:
 
 ```bash
-CONFIG_FILEPATH=examples/config.json uvicorn --factory demo_app.spec:container.app
+CONFIG_FILEPATH=examples/config.json uvicorn --factory demo_app.spec:spec.create_app
 ```
 
 > Note that server config won't be applied since uvicorn is started from command line and not within Python process in this case.
@@ -53,7 +57,7 @@ CONFIG_FILEPATH=examples/config.json uvicorn --factory demo_app.spec:container.a
 - It's also possible to start the application with hot-reloading:
 
 ```bash
-CONFIG_FILEPATH=examples/config.json uvicorn --factory demo_app.spec:container.app --reload
+CONFIG_FILEPATH=examples/config.json uvicorn --factory demo_app.spec:spec.create_app --reload
 ```
 
 ## Configure the app
