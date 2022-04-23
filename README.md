@@ -104,8 +104,6 @@ In order to faciliate creation and declaration of application containers, the [`
 
 - [x] **Explicit**: Router endpoints must not use global variables but instead explicitely declare dependencies to be injected (such as database client or settings). This enables [efficient sharing of resources and facilitate eventual refactoring in the future](https://github.com/charbonnierg/nats-fastapi-issuer-demo/blob/9beb7e4f1d37d616de10ab701cbde7fe1115f2a2/src/demo-app/demo_app/routes/demo.py#L34).
 
-- [x] **Global error handling**: Error handlers are used to transforme raised exception into HTTP responses with appropriate status code. This minimize boilerplate code required to catch exceptions in every endpoint, and encourage developers to raise known exceptions in library code.
-
 - [x] **Conposable**: Including additional routers or features in the future should require minimal work.
 
   - Arbitrary hooks with access to application container within their scope can be registered. Those hooks are guaranteed to be started and stopped in order, and even if an exception is encountered during a hook exit, all remaining hooks will be closed before an exception is raised. It minimize risk of resource leak within the application. Hooks can be seen as contexts just like in the illustration below:
