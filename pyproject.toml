@@ -4,8 +4,8 @@ version = "0.0.1"
 description = "Final app"
 authors = ["Guillaume Charbonnier <gu.charbon@gmail.com>"]
 packages = [
-    { include = "demo_app", from = "src" },
-    { include = "quara", from = "src" },
+    { include = "demo_app", from = "src/demo-app" },
+    { include = "quara", from = "src/quara-wiring" },
 ]
 [tool.poetry.dependencies]
 python = ">=3.8,<=3.10"
@@ -36,9 +36,10 @@ black = { version = "^22.3.0", optional = true }
 isort = { version = "^5.10.1", optional = true }
 mypy = { version = "^0.942", optional = true }
 types-setuptools = { version = "^57.4.12", optional = true }
+types-PyYAML = { version = "^6.0.7", optional = true }
 
 [tool.poetry.extras]
-dev = ["flake8", "black", "isort", "mypy", "types-setuptools"]
+dev = ["flake8", "black", "isort", "mypy", "types-setuptools", "types-PyYAML"]
 telemetry = [
     "prometheus-fastapi-instrumentator",
     "opentelemetry-instrumentation-fastapi",

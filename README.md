@@ -82,7 +82,7 @@ The application container is defined in `demo_app/entrypoint.py`.
 
 In order to add new capabilities to the application (routers, providers or hooks), the `create_container` function should be updated.
 
-![App Lifecycle](./lifecycle.png)
+![App Lifecycle](./docs/lifecycle.png)
 
 ## Objectives
 
@@ -106,9 +106,19 @@ In order to add new capabilities to the application (routers, providers or hooks
 
   - Arbitrary hooks with access to application container within their scope can be registered. Those hooks are guaranteed to be started and stopped in order, and even if an exception is encountered during a hook exit, all remaining hooks will be closed before an exception is raised. It minimize risk of resource leak within the application. Hooks can be seen as contexts just like in the illustration below:
 
-  - Arbitrary providers with access to application container within their scope can be registered. Those providers are executed once, before the application is created. They can be used to add optional features such as tracing or metrics.
+  - Arbitrary tasks can be started along the application. Tasks are similar to hooks, and are defined using a coroutine function which takes the application container as argument and can stay alive as long as application
+  is alive. Unlike hooks, tasks have a status and can be:
+    - stopped
+    - started
+    - restarted
+  It's also possible to fetch the task status to create healthcheck handlers for example.
 
-![Application resources lifecyle](./resources.png)
+  - Arbitrary providers with access to application container within their scope can be registered. Those providers are executed once, before the application is created. They can be used to add optional features such as tracing or metrics.
+  
+  - Objects provided by hooks or providers can be accessed through dependency injection in the API endpoints.
+
+
+![Application resources lifecyle](./docs/resources.png)
 
 ## Adding a hook to the application
 
