@@ -106,7 +106,7 @@ In order to faciliate creation and declaration of application containers, the [`
 
 - [x] **Global error handling**: Error handlers are used to transforme raised exception into HTTP responses with appropriate status code. This minimize boilerplate code required to catch exceptions in every endpoint, and encourage developers to raise known exceptions in library code.
 
-- [x] **Scalable**: Including additional routers or features in the future should require minimal work.
+- [x] **Conposable**: Including additional routers or features in the future should require minimal work.
 
   - Arbitrary hooks with access to application container within their scope can be registered. Those hooks are guaranteed to be started and stopped in order, and even if an exception is encountered during a hook exit, all remaining hooks will be closed before an exception is raised. It minimize risk of resource leak within the application. Hooks can be seen as contexts just like in the illustration below:
 
