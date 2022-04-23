@@ -50,11 +50,13 @@ python -m pip install -e .[dev,oidc,telemetry]
 python -m wire examples/app.yaml -c examples/config.json
 ```
 
-- The command line interface:
+- Or the `wire` command line tool:
 
 ```bash
-wire --help
+wire examples/app.yaml -c examples/config.json
 ```
+
+> Run `wire --help` to see avaible options.
 
 - Or use `uvicorn` to start the application:
 
@@ -178,7 +180,30 @@ tasks: []
 
 ## Classic application (python class)
 
-It's also possible to define applications using a python object instead of a text file.
+It's also possible to define applications using a python object instead of a text file. The example application looks like:
+
+```python
+spec = AppSpec(
+    meta=AppMeta(
+        name="demo_app",
+        title="Demo App",
+        description="A declarative FastAPI application 🎉",
+        package="wire",
+    ),
+    settings=AppSettings,
+    providers=[
+        wire.providers.structured_logging_provider,
+        wire.providers.prometheus_metrics_provider,
+        wire.providers.openid_connect_provider,
+        wire.providers.openelemetry_traces_provider,
+        wire.providers.cors_provider,
+        wire.providers.debug_provider,
+    ],
+    routers=[issuer_router, nats_router, demo_router],
+    hooks=[issuer_hook],
+    config_file="~/.quara.config.json",
+)
+```
 
 ### Adding hooks
 
@@ -201,7 +226,7 @@ The `routers` argument of the `AppSpec` constructor can be used to specify a lis
 Both `fastapi.APIRouter` and functions which might return `None` or an `fastapi.APIRouter` instance are accepted as list items.
 
 
-## Adding providers
+### Adding providers
 
 Providers are functions which can modify the FastAPI application before it is started.
 
