@@ -121,25 +121,80 @@ Below is an illustration of an hypothetic application lifecycle:
 
 ![App Lifecycle](./docs/container-lifecycle.png)
 
-## Adding a hook to the application
+## Declarative application
+
+It's possible to declare application using YAML, JSON or INI files. An example application could be:
+
+```yaml
+---
+# Application metadata
+meta:
+  name: demo_app
+  title: Demo App
+  description: A declarative FastAPI application 🎉
+  package: demo-app
+
+# Custom settings model
+settings: demo_app.settings.AppSettings
+
+# Declare providers
+# A few providers are available to use directly
+# It's quite easy to add new providers
+providers:
+  - quara.wiring.providers.structured_logging_provider
+  - quara.wiring.providers.prometheus_metrics_provider
+  - quara.wiring.providers.openid_connect_provider
+  - quara.wiring.providers.openelemetry_traces_provider
+  - quara.wiring.providers.cors_provider
+  - quara.wiring.providers.debug_provider
+# It's possible to add routers
+routers:
+  - demo_app.routes.issuer_router
+  - demo_app.routes.nats_router
+  - demo_app.routes.demo_router
+# Or hooks
+hooks:
+  - demo_app.hooks.issuer_hook
+# Or tasks (not used in this example)
+tasks: []
+# # It's also possible to declare default config file
+# config_file: ~/.quara.config.json
+```
+
+## `AppSpec` container factory
+
+It's also possible to define applications using a python object instead of a text file.
+
+The `AppSpec` class can be used to create application containers according to an application specification.
+
+### Adding new hooks
 
 Update the file `demo_app/spec.py` to add a new hook to your application.
 
+The `hooks` argument of the `AppSpec` constructor can be used to specify a list of hooks used by the application.
+
+Each hook must implement the `AsyncContextManager` protocol or be functions which might return `None` or an `AsyncContextManager` instance.
+
+Object yielded by the hook is available in API endpoints using dependency injection.
+
 > Note: It's possible to access any container attribute within hooks.
 
-> Note: You may want to implement your router as a new module located in `hooks/` directory.
-
-## Adding a router to the application
+### Adding new routers
 
 Update the file `demo_app/spec.py` to register a new router within your application.
 
-> Note: You may want to implement your router as a new module located in `routes/` directory.
+The `routers` argument of the `AppSpec` constructor can be used to specify a list of routers used by the application.
+
+Both `fastapi.APIRouter` and functions which might return `None` or an `fastapi.APIRouter` instance are accepted as list items.
+
 
 ## Adding providers to the application
 
 Providers are functions which can modify the FastAPI application before it is started.
 
-They must accept an application container instance as unique argument, and should not return a value.
+They must accept an application container instance as unique argument, and can return a list of objects or None.
+When None is returned, it is assumed that provider is disabled.
+When a list is returned, each object present in the list will be available in API endpoints using dependency injection.
 
 Example providers are located in `src/quara-wiring/quara/wiring/providers/` directory and are registered in `demo_app/spec.py`.
 
