@@ -133,7 +133,10 @@ Below is an illustration of an hypothetic application lifecycle:
 
 ![App Lifecycle](https://github.com/charbonnierg/nats-fastapi-issuer-demo/raw/next/docs/container-lifecycle.png)
 
-## Declarative application
+
+## `AppSpec` container factory
+
+### Declarative application (from YAML/JSON/INI)
 
 It's possible to declare application using YAML, JSON or INI files. An example application could be:
 
@@ -173,13 +176,11 @@ tasks: []
 # config_file: ~/.quara.config.json
 ```
 
-## `AppSpec` container factory
+## Classic application (python class)
 
 It's also possible to define applications using a python object instead of a text file.
 
-The `AppSpec` class can be used to create application containers according to an application specification.
-
-### Adding new hooks
+### Adding hooks
 
 Update the file `demo_app/spec.py` to add a new hook to your application.
 
@@ -191,7 +192,7 @@ Object yielded by the hook is available in API endpoints using dependency inject
 
 > Note: It's possible to access any container attribute within hooks.
 
-### Adding new routers
+### Adding routers
 
 Update the file `demo_app/spec.py` to register a new router within your application.
 
@@ -200,7 +201,7 @@ The `routers` argument of the `AppSpec` constructor can be used to specify a lis
 Both `fastapi.APIRouter` and functions which might return `None` or an `fastapi.APIRouter` instance are accepted as list items.
 
 
-## Adding providers to the application
+## Adding providers
 
 Providers are functions which can modify the FastAPI application before it is started.
 
@@ -210,9 +211,9 @@ When a list is returned, each object present in the list will be available in AP
 
 Example providers are located in `src/quara-wiring/quara/wiring/providers/` directory and are registered in `demo_app/spec.py`.
 
-## Building the application
+## Building the package
 
-Run the following command to build the application:
+Run the following command to build the package:
 
 ```bash
 python -m build .
