@@ -19,8 +19,8 @@
         "client_id": "demo-app"
     },
     "telemetry": {
-        "traces_enabled": false,
+        "traces_enabled": true,
         "metrics_enabled": true,
-        "traces_exporter": "otlp"
+        "traces_exporter": "memory"
     }
 }

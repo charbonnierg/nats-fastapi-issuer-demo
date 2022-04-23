@@ -6,7 +6,8 @@ from __future__ import annotations
 
 import pydantic
 from quara.wiring.core import BaseAppSettings
-from .lib.issuer import IssuerFilesSettings, IssuerSettings
+
+from .lib import IssuerFilesSettings, IssuerSettings
 
 
 class AppSettings(BaseAppSettings):

@@ -33,25 +33,27 @@ python -m pip install -e .[dev]
 - Either use the `demo_app` module:
 
 ```bash
-python -m demo_app
+python -m wire examples/app.yaml -c examples/config.json
 ```
 
 - The command line interface:
 
 ```bash
-demo-app
+wire --help
 ```
 
 - Or use `uvicorn` to start the application:
 
 ```bash
-uvicorn --factory demo_app.entrypoint:create_app
+CONFIG_FILEPATH=examples/config.json uvicorn --factory demo_app.spec:container.app
 ```
+
+> Note that server config won't be applied since uvicorn is started from command line and not within Python process in this case.
 
 - It's also possible to start the application with hot-reloading:
 
 ```bash
-uvicorn --factory demo_app.entrypoint:create_app --reload
+CONFIG_FILEPATH=examples/config.json uvicorn --factory demo_app.spec:container.app --reload
 ```
 
 ## Configure the app

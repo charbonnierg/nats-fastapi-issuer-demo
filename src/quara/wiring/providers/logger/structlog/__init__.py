@@ -2,21 +2,22 @@ from __future__ import annotations
 
 import logging
 import time
-from typing import Any, Awaitable, Callable, Union
+from typing import Any, Awaitable, Callable, List, Optional, Union
 
-import structlog
+from quara.wiring.core.container import Container
+from quara.wiring.core.settings import BaseAppSettings
 from starlette.requests import Request
 from starlette.responses import Response
 from uvicorn.config import LOG_LEVELS
 
-from quara.wiring.core.container import Container
-from quara.wiring.core.settings import BaseAppSettings
 
-from ._log_levels import make_filtering_bound_logger
-
-
-def structured_logging_provider(container: Container[BaseAppSettings]) -> None:
+def structured_logging_provider(container: Container[BaseAppSettings]) -> List[Any]:
     """Add structured logger to the application."""
+    import structlog
+    from quara.wiring.providers.logger.structlog._log_levels import (
+        make_filtering_bound_logger,
+    )
+
     if container.settings.telemetry.traces_enabled:
         from opentelemetry import trace
 
@@ -155,6 +156,8 @@ def structured_logging_provider(container: Container[BaseAppSettings]) -> None:
                 )
                 structlog.threadlocal.clear_threadlocal()
             return response
+
+    return []
 
 
 __all__ = ["structured_logging_provider"]

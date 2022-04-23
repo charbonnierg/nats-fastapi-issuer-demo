@@ -11,7 +11,6 @@ import fastapi
 import pkg_resources
 import pydantic
 
-
 SettingsT = typing.TypeVar("SettingsT", bound="BaseAppSettings")
 
 
@@ -22,26 +21,30 @@ class AppMeta(pydantic.BaseModel):
     title: str = "QUARA App"
     description: str = "Rest API application built using QUARA framework"
     package: typing.Optional[str] = None
-    version: typing.Optional[str] = None
-    openapi_prefix: typing.Optional[str] = ""
+    version: str = ""
+    openapi_prefix: str = ""
     openapi_url: typing.Optional[str] = "/openapi.json"
     openapi_tags: typing.Optional[typing.List[typing.Dict[str, typing.Any]]] = None
     terms_of_service: typing.Optional[str] = None
     contact: typing.Optional[typing.Dict[str, typing.Union[str, typing.Any]]] = None
-    license_info: typing.Optional[typing.Dict[str, typing.Union[str, typing.Any]]] = None
+    license_info: typing.Optional[
+        typing.Dict[str, typing.Union[str, typing.Any]]
+    ] = None
     docs_url: typing.Optional[str] = "/docs"
     redoc_url: typing.Optional[str] = "/redoc"
     swagger_ui_oauth2_redirect_url: typing.Optional[str] = "/docs/oauth2-redirect"
     swagger_ui_init_oauth: typing.Optional[typing.Dict[str, typing.Any]] = None
 
     @pydantic.validator("version", pre=False, always=True)
-    def auto_version(cls, v, values) -> typing.Any:
+    def auto_version(
+        cls, v: typing.Any, values: typing.Dict[str, typing.Any]
+    ) -> typing.Any:
         """Set version automatically if package is defined"""
-        if v is None:
+        if v == "":
             if "package" in values and values["package"] is not None:
                 return pkg_resources.get_distribution(values["package"]).version
             else:
-                return None
+                return ""
         else:
             return v
 
@@ -81,11 +84,11 @@ class TelemetrySettings(
     pydantic.BaseSettings, case_sensitive=False, env_prefix="telemetry_"
 ):
     # Telemetry settings
-    traces_enabled: bool = False
-    metrics_enabled: bool = False
+    traces_enabled: bool = True
+    metrics_enabled: bool = True
     metrics_path: str = "/metrics"
     ignore_path: str = "metrics,docs,openapi.json"
-    traces_exporter: typing.Literal["otlp", "console"] = "console"
+    traces_exporter: typing.Literal["otlp", "console", "memory"] = "memory"
 
 
 class OTLPSettings(pydantic.BaseSettings, case_sensitive=False, env_prefix="otlp_"):
@@ -121,7 +124,9 @@ class CORSSettings(pydantic.BaseSettings, case_sensitive=False, env_prefix="cors
     max_age: int = 600
 
 
-class BaseAppSettings(pydantic.BaseSettings, case_sensitive=False, extra=pydantic.Extra.allow):
+class BaseAppSettings(
+    pydantic.BaseSettings, case_sensitive=False, extra=pydantic.Extra.allow
+):
     # Meta attribute can be overriden with a default value in child classes
     meta: AppMeta = pydantic.Field(default_factory=AppMeta)
     logging: LogSettings = pydantic.Field(default_factory=LogSettings)
@@ -149,7 +154,9 @@ class BaseAppSettings(pydantic.BaseSettings, case_sensitive=False, extra=pydanti
         )
         if files_settings.filepath:
             # First parse file
-            config_file_path = pathlib.Path(files_settings.filepath).expanduser().resolve(True)
+            config_file_path = (
+                pathlib.Path(files_settings.filepath).expanduser().resolve(True)
+            )
             # Load settings from file
             app_settings_from_file = cls.parse_file(
                 config_file_path, content_type="application/json"

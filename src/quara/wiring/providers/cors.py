@@ -1,10 +1,8 @@
 from __future__ import annotations
 
-from starlette.middleware.cors import CORSMiddleware
-
 from quara.wiring.core.container import Container
 from quara.wiring.core.settings import BaseAppSettings
-
+from starlette.middleware.cors import CORSMiddleware
 
 
 def cors_provider(container: Container[BaseAppSettings]) -> None:

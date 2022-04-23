@@ -8,9 +8,8 @@ import argparse
 import typing
 from collections import defaultdict
 
+from quara.wiring.core.spec import create_container_from_specs
 from structlog import get_logger
-
-from quara.wiring import AppSpec
 
 main_parser = argparse.ArgumentParser(add_help=True)
 main_parser.add_argument(
@@ -54,6 +53,10 @@ main_parser.add_argument(
     "--log-level",
     "-l",
     help="Logging level",
+)
+main_parser.add_argument(
+    "--log-renderer",
+    help="Logging renderer.  Possible choices: [console | json]",
 )
 main_parser.add_argument("--access-log", help="Enable access log", action="store_true")
 main_parser.add_argument(
@@ -108,14 +111,20 @@ main_parser.set_defaults(
 
 
 def run(*args: str) -> None:
+    # Parse arguments
     if args:
         ns = main_parser.parse_args(args)
     else:
         ns = main_parser.parse_args()
+    # Fetch spec argument
     spec = ns.spec
     # Initialize raw application settings to be parsed
     raw_settings: typing.Dict[str, typing.Any] = defaultdict(dict)
     # Only settings explicitely provided by user should be considered
+    # FIXME: Using click would be much simpler...
+    # It's possible to get the dict of arguments using
+    # dict(ns._get_kwargs())
+    # But then we still need to parse options like --opt/--no-opt
     if ns.host:
         raw_settings["server"]["host"] = ns.host
     if ns.port:
@@ -144,16 +153,17 @@ def run(*args: str) -> None:
         raw_settings["telemetry"]["traces_exporter"] = ns.traces_exporter.lower()
     if ns.log_level:
         raw_settings["logging"]["level"] = ns.log_level.lower()
+    if ns.log_renderer:
+        raw_settings["logging"]["renderer"] = ns.log_renderer.lower()
     if ns.access_log is not None:
         raw_settings["logging"]["access_log"] = ns.debug
     if ns.no_access_log is not None:
         raw_settings["logging"]["access_log"] = ns.no_access_log
     # Create spec
-    spec = AppSpec.from_file(spec)
-    # Parse settings provided as command line argument
-    settings = spec.settings.parse_obj(raw_settings)
-    # Create container
-    container = spec.create_container(settings=settings, config_file=ns.config_file)
+    container = create_container_from_specs(
+        spec, settings=raw_settings, config_file=ns.config_file
+    )
+    # Create a logger instance
     logger = get_logger()
     # Leave some info for debug
     logger.info(

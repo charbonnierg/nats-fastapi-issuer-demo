@@ -16,7 +16,8 @@
     ],
     "routers": [
         "demo_app.routes.issuer_router",
-        "demo_app.routes.nats_router"
+        "demo_app.routes.nats_router",
+        "demo_app.routes.demo_router"
     ],
     "hooks": [
         "demo_app.hooks.issuer_hook"

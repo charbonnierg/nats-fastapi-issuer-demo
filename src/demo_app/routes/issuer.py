@@ -3,12 +3,11 @@ from __future__ import annotations
 import typing
 
 import fastapi
+from quara.wiring import get_hook
+from quara.wiring.providers.oidc import UserClaims, get_user
 from structlog import get_logger
 
-from quara.wiring.providers.oidc import get_user, UserClaims
-
-from demo_app.hooks.issuer import issuer
-from demo_app.lib.issuer import Claims, Issuer, NATSAttrs
+from demo_app.lib import Claims, Issuer, NATSAttrs
 
 logger = get_logger()
 router = fastapi.APIRouter(
@@ -24,7 +23,7 @@ router = fastapi.APIRouter(
     status_code=200,
 )
 async def get_issuer_infos(
-    issuer: Issuer = fastapi.Depends(issuer), user: UserClaims = get_user()
+    issuer: Issuer = get_hook(Issuer), user: UserClaims = get_user()
 ) -> typing.Dict[str, str]:
     """Get issuer account public keys"""
     return {
@@ -40,7 +39,7 @@ async def get_issuer_infos(
     response_model=Claims,
 )
 async def get_current_user(
-    issuer: Issuer = fastapi.Depends(issuer),
+    issuer: Issuer = get_hook(Issuer),
     user: UserClaims = get_user(),
 ) -> Claims:
     """Return NATS credentials for current user.
@@ -64,7 +63,7 @@ async def get_current_user(
     status_code=202,
 )
 async def get_current_user_credentials(
-    issuer: Issuer = fastapi.Depends(issuer),
+    issuer: Issuer = get_hook(Issuer),
     user: UserClaims = get_user(),
 ) -> fastapi.responses.PlainTextResponse:
     """Return NATS credentials for current user.
@@ -88,7 +87,7 @@ async def get_current_user_credentials(
     status_code=202,
 )
 async def get_current_user_jwt(
-    issuer: Issuer = fastapi.Depends(issuer),
+    issuer: Issuer = get_hook(Issuer),
     user: UserClaims = get_user(),
 ) -> fastapi.responses.PlainTextResponse:
     """Return NATS credentials for current user.
@@ -116,8 +115,8 @@ async def get_current_user_jwt(
 async def get_user_credentials(
     username: str,
     nats: typing.Optional[NATSAttrs] = None,
-    issuer: Issuer = fastapi.Depends(issuer),
-    _: UserClaims = get_user(["nats-issuer", "nats-admin"], all=False),
+    issuer: Issuer = get_hook(Issuer),
+    user: UserClaims = get_user(["nats-issuer", "nats-admin"], all=False),
     # logger: BoundLogger = fastapi.Depends(logger),
 ) -> fastapi.responses.PlainTextResponse:
     """Return NATS credentials for any user.
@@ -137,8 +136,8 @@ async def get_user_credentials(
 async def get_user_jwt(
     username: str,
     nats: typing.Optional[NATSAttrs] = None,
-    issuer: Issuer = fastapi.Depends(issuer),
-    _: UserClaims = get_user(["nats-issuer", "nats-admin"], all=False),
+    issuer: Issuer = get_hook(Issuer),
+    user: UserClaims = get_user(["nats-issuer", "nats-admin"], all=False),
     # logger: BoundLogger = fastapi.Depends(logger),
 ) -> fastapi.responses.PlainTextResponse:
     """Return NATS JWT token for any user.

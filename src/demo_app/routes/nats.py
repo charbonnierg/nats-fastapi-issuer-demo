@@ -5,12 +5,11 @@ import typing
 
 import fastapi
 from nats import NATS
+from quara.wiring import get_hook
+from quara.wiring.providers.oidc import UserClaims, get_user
 from structlog import get_logger
 
-from quara.wiring.providers.oidc import get_user, UserClaims
-
-from demo_app.hooks.issuer import issuer
-from demo_app.lib.issuer import Issuer, NATSAttrs
+from demo_app.lib import Issuer, NATSAttrs
 
 logger = get_logger()
 router = fastapi.APIRouter(
@@ -31,7 +30,7 @@ async def publish_message(
         typing.List[typing.Any], typing.Dict[str, typing.Any], None
     ] = None,
     headers: typing.Optional[typing.Dict[str, str]] = None,
-    issuer: Issuer = fastapi.Depends(issuer),
+    issuer: Issuer = get_hook(Issuer),
     user: UserClaims = get_user()
     # logger: BoundLogger = fastapi.Depends(logger),
 ) -> typing.Dict[str, str]:
@@ -63,7 +62,7 @@ async def request_message(
         typing.List[typing.Any], typing.Dict[str, typing.Any], None
     ] = None,
     headers: typing.Optional[typing.Dict[str, str]] = None,
-    issuer: Issuer = fastapi.Depends(issuer),
+    issuer: Issuer = get_hook(Issuer),
     user: UserClaims = get_user(),
 ) -> typing.Dict[str, str]:
     """Request a message on NATS using current user credentials."""

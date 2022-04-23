@@ -5,11 +5,9 @@ from __future__ import annotations
 import contextlib
 import typing
 
-from starlette.requests import Request
+from quara.wiring import Container
 
-from quara.wiring.core import Container
-
-from demo_app.lib.issuer import Issuer, IssuerConfig
+from demo_app.lib import Issuer, IssuerConfig
 from demo_app.settings import AppSettings
 
 
@@ -17,7 +15,7 @@ from demo_app.settings import AppSettings
 async def issuer_hook(
     container: Container[AppSettings],
 ) -> typing.AsyncIterator[Issuer]:
-    """Setup issuer for the application"""
+    """Setup and yield issuer for the application"""
     # Parse config
     config = IssuerConfig.parse(
         account_signing_key_file=container.settings.issuer_files.account_signing_key_file,
@@ -27,12 +25,5 @@ async def issuer_hook(
     )
     # Create issuer
     issuer = Issuer(config)
-    # Store issuer in app
-    container.app.state.issuer = issuer
     # Yield issuer
     yield issuer
-
-
-def issuer(request: Request) -> Issuer:
-    """Access the issuer from a Starlette/FastAPI request"""
-    return request.app.state.issuer
