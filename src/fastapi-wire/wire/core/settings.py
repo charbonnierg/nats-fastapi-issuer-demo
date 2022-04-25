@@ -125,7 +125,6 @@ class BaseAppSettings(
     pydantic.BaseSettings, case_sensitive=False, extra=pydantic.Extra.allow
 ):
     # Meta attribute can be overriden with a default value in child classes
-    meta: AppMeta = pydantic.Field(default_factory=AppMeta)
     logging: LogSettings = pydantic.Field(default_factory=LogSettings)
     server: ServerSettings = pydantic.Field(default_factory=ServerSettings)
     telemetry: TelemetrySettings = pydantic.Field(default_factory=TelemetrySettings)

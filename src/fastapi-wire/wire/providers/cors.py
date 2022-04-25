@@ -1,6 +1,6 @@
+from starlette.middleware.cors import CORSMiddleware
 from wire.core.container import Container
 from wire.core.settings import BaseAppSettings
-from starlette.middleware.cors import CORSMiddleware
 
 
 def cors_provider(container: Container[BaseAppSettings]) -> None:

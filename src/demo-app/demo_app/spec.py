@@ -1,9 +1,17 @@
-import wire.providers
-from wire import AppSpec
-from wire.core.settings import AppMeta
+from wire import AppMeta, AppSpec
 
+# Providers import
+from wire.providers.cors import cors_provider
+from wire.providers.debug import debug_provider
+from wire.providers.logger import structured_logging_provider
+from wire.providers.metrics import prometheus_metrics_provider
+from wire.providers.oidc import openid_connect_provider
+from wire.providers.tracing import openelemetry_traces_provider
+
+# Local imports
 from .hooks import issuer_hook
-from .routes import demo_router, issuer_router, nats_router
+from .routes import issuer_router, nats_router
+from .routes.demo import router as demo_router
 from .settings import AppSettings
 
 # The same spec is defined in the examples directory at the root of the git repo
@@ -24,12 +32,12 @@ spec = AppSpec(
     settings=AppSettings,
     # We do not control lifecycle of providers
     providers=[
-        wire.providers.structured_logging_provider,
-        wire.providers.prometheus_metrics_provider,
-        wire.providers.openid_connect_provider,
-        wire.providers.openelemetry_traces_provider,
-        wire.providers.cors_provider,
-        wire.providers.debug_provider,
+        structured_logging_provider,
+        prometheus_metrics_provider,
+        openid_connect_provider,
+        openelemetry_traces_provider,
+        cors_provider,
+        debug_provider,
     ],
     # App is responsible for starting routers
     # Routers can have their own lifecycle hooks

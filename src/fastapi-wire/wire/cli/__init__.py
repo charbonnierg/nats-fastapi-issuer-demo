@@ -6,8 +6,8 @@ import argparse
 import typing
 from collections import defaultdict
 
-from wire.core.spec import create_container_from_specs
 from structlog import get_logger
+from wire.core.spec import create_container_from_specs
 
 main_parser = argparse.ArgumentParser(prog="wire", add_help=True)
 main_parser.add_argument(

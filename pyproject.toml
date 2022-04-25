@@ -39,6 +39,8 @@ isort = { version = "^5.10.1", optional = true }
 mypy = { version = "^0.942", optional = true }
 types-setuptools = { version = "^57.4.12", optional = true }
 types-PyYAML = { version = "^6.0.7", optional = true }
+pymongo = { version = "*", optional = true }
+motor = { version = ">=2.5.1", optional = true }
 
 [tool.poetry.extras]
 dev = ["flake8", "black", "isort", "mypy", "types-setuptools", "types-PyYAML"]
@@ -46,9 +48,11 @@ telemetry = [
     "prometheus-fastapi-instrumentator",
     "opentelemetry-instrumentation-fastapi",
     "opentelemetry-sdk",
-    "opentelemetry-exporter-otlp-proto-http",
+    "opentelemetry-exporter-otlp-proto-grpc",
 ]
 oidc = ["cryptography", "httpx", "PyJWT"]
+mongo = ["pymongo"]
+async-mongo = ["pymongo", "motor"]
 
 [tool.poetry.scripts]
 wire = "wire.cli:run"

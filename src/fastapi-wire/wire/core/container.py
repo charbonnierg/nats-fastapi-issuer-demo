@@ -109,6 +109,7 @@ class Container(typing.Generic[SettingsT]):
                     self.meta.swagger_ui_init_oauth = {
                         "clientId": self.settings.oidc.client_id
                     }
+        # Create a FastAPI application
         self.app = FastAPI(
             title=self.meta.title,
             description=self.meta.description,
@@ -227,12 +228,12 @@ class Container(typing.Generic[SettingsT]):
         await self.server.serve()
 
     def exit_soon(self) -> None:
-        """Schedule application shutdown to run soon"""
+        """Schedule application to shutdown soon"""
         if self.server:
             self.server.should_exit = True
 
     @property
-    def test_client(self) -> "TestClient":
+    def test_web_client(self) -> "TestClient":
         """Provide a quick access to a test client.
 
         The `fastapi.testclient.TestClient` class requires the `requests` package

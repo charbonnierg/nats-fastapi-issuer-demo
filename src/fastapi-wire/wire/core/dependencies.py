@@ -27,10 +27,9 @@ def get_settings(
     """Provide the application settings from a FastAPI request."""
 
     def settings_dependency(
-        request: Request,
+        container: Container[BaseAppSettings] = get_container(),
     ) -> t.Optional[BaseSettings]:
         """Provide the application settings from a FastAPI request."""
-        container: Container[BaseAppSettings] = request.app.state.container
         app_settings = container.settings
         if settingsT is None:
             return app_settings
@@ -57,10 +56,9 @@ def get_meta(
         if default is ...:
 
             def meta_dependency(
-                request: Request,
+                container: Container[BaseAppSettings] = get_container(),
             ) -> t.Any:
                 """Get a single app metadata field value"""
-                container: Container[BaseAppSettings] = request.app.state.container
                 try:
                     return getattr(container.meta, attr_key)
                 except AttributeError:
@@ -69,19 +67,17 @@ def get_meta(
         else:
 
             def meta_dependency(
-                request: Request,
+                container: Container[BaseAppSettings] = get_container(),
             ) -> t.Any:
                 """Get a single app metadata field value"""
-                container: Container[BaseAppSettings] = request.app.state.container
                 return getattr(container.meta, attr_key, default)
 
     else:
 
         def meta_dependency(
-            request: Request,
+            container: Container[BaseAppSettings] = get_container(),
         ) -> t.Any:
             """Get all app metadata"""
-            container: Container[BaseAppSettings] = request.app.state.container
             return container.meta
 
     return Depends(dependency=meta_dependency)
@@ -96,19 +92,17 @@ def get_task(
     if default is ...:
 
         def task_dependency(
-            request: Request,
+            container: Container[BaseAppSettings] = get_container(),
         ) -> t.Optional[AppTask[t.Any]]:
             """Provide a task instance from a FastAPI request."""
-            container: Container[BaseAppSettings] = request.app.state.container
             return container.submitted_tasks[name]
 
     else:
 
         def task_dependency(
-            request: Request,
+            container: Container[BaseAppSettings] = get_container(),
         ) -> t.Optional[AppTask[t.Any]]:
             """Provide a task instance from a FastAPI request."""
-            container: Container[BaseAppSettings] = request.app.state.container
             return container.submitted_tasks.get(name, default)
 
     return Depends(dependency=task_dependency)
@@ -118,10 +112,9 @@ def get_tasks() -> t.Any:
     """Provide dict of tasks instances from a FastAPI request."""
 
     def tasks_dependency(
-        request: Request,
+        container: Container[BaseAppSettings] = get_container(),
     ) -> t.Dict[str, AppTask[t.Any]]:
         """Provide a task instance from a FastAPI request."""
-        container: Container[BaseAppSettings] = request.app.state.container
         return container.submitted_tasks
 
     return Depends(dependency=tasks_dependency)
@@ -135,10 +128,9 @@ def get_hook(
     """Provide a hook instance from a FastAPI request."""
 
     def hook_dependency(
-        request: Request,
+        container: Container[BaseAppSettings] = get_container(),
     ) -> t.Optional[t.Any]:
         """Provide a hook instance from a FastAPI request."""
-        container: Container[BaseAppSettings] = request.app.state.container
         for hook_name, hook in container.submitted_hooks.items():
             if isinstance(hook, hookT):
                 if name is None:
@@ -156,10 +148,9 @@ def get_hooks() -> t.Any:
     """Provide a hook instance from a FastAPI request."""
 
     def hooks_dependency(
-        request: Request,
+        container: Container[BaseAppSettings] = get_container(),
     ) -> t.Dict[str, t.Any]:
         """Provide a hook instance from a FastAPI request."""
-        container: Container[BaseAppSettings] = request.app.state.container
         return container.submitted_hooks
 
     return Depends(dependency=hooks_dependency)
@@ -173,10 +164,9 @@ def get_resource(
     """Provide a resource instance from a FastAPI request."""
 
     def resource_dependency(
-        request: Request,
+        container: Container[BaseAppSettings] = get_container(),
     ) -> t.Optional[t.Any]:
         """Provide a resource instance from a FastAPI request."""
-        container: Container[BaseAppSettings] = request.app.state.container
         for (
             provider_name,
             resources,
@@ -204,10 +194,9 @@ def get_resources(
     if provider is None:
 
         def resources_dependency(
-            request: Request,
+            container: Container[BaseAppSettings] = get_container(),
         ) -> t.Optional[t.Dict[str, t.List[t.Any]]]:
             """Provide a hook instance from a FastAPI request."""
-            container: Container[BaseAppSettings] = request.app.state.container
             return container.provided_resources
 
     else:
@@ -217,10 +206,9 @@ def get_resources(
             default_value = default
 
             def resources_dependency(
-                request: Request,
+                container: Container[BaseAppSettings] = get_container(),
             ) -> t.Optional[t.Dict[str, t.List[t.Any]]]:
                 """Provide a hook instance from a FastAPI request."""
-                container: Container[BaseAppSettings] = request.app.state.container
                 return {
                     provider_name: container.provided_resources.get(
                         provider_name, t.cast(t.List[t.Any], default_value)
@@ -230,10 +218,9 @@ def get_resources(
         else:
 
             def resources_dependency(
-                request: Request,
+                container: Container[BaseAppSettings] = get_container(),
             ) -> t.Optional[t.Dict[str, t.List[t.Any]]]:
                 """Provide a hook instance from a FastAPI request."""
-                container: Container[BaseAppSettings] = request.app.state.container
                 return {provider_name: container.provided_resources[provider_name]}
 
     return Depends(resources_dependency)

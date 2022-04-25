@@ -2,9 +2,9 @@ import typing
 
 from fastapi import APIRouter
 from fastapi.responses import PlainTextResponse, Response
+from structlog import get_logger
 from wire import get_hook
 from wire.providers.oidc import UserClaims, get_user
-from structlog import get_logger
 
 from demo_app.lib import Claims, Issuer, NATSAttrs
 from demo_app.lib.issuer import IssuerPublicKeys

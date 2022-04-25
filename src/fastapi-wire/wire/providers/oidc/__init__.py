@@ -3,13 +3,14 @@ from typing import Any, List, Optional
 from fastapi import Depends, HTTPException, Security
 from fastapi.responses import PlainTextResponse
 from fastapi.security.utils import get_authorization_scheme_param
-from wire import BaseAppSettings, Container
-from wire.core.dependencies import get_container
 from starlette.requests import Request
 from starlette.status import HTTP_403_FORBIDDEN
+from wire import BaseAppSettings, Container
+from wire.core.dependencies import get_container
 
 from .errors import NotAllowedError
 from .models import NO_AUTH_USER_CLAIMS, UserClaims
+from .security import OIDCAuth
 
 
 def openid_connect_provider(
@@ -17,7 +18,12 @@ def openid_connect_provider(
 ) -> Optional[List[Any]]:
     if not container.settings.oidc.enabled:
         return None
-    from wire.providers.oidc.provider import OIDCAuth, OIDCAuthProvider
+    try:
+        from wire.providers.oidc.provider import OIDCAuthProvider
+    except ModuleNotFoundError as err:
+        raise ModuleNotFoundError(
+            "Extra dependency 'oidc' is required to use the openid connect provider. Install it using the command: 'pip install fastapi-wire[oidc]'"
+        ) from err
 
     # Create oidc provider
     oidc = OIDCAuthProvider(
@@ -25,7 +31,6 @@ def openid_connect_provider(
         enabled=container.settings.oidc.enabled,
         algorithms=container.settings.oidc.algorithms,
     )
-    # Always attach OIDC provider to app (it won't be started if not enabled)
     container.app.state.oidc = oidc
     OIDCAuth.update_model(oidc)
 
@@ -50,8 +55,6 @@ def openid_connect_provider(
 
 def get_user(roles: List[str] = [], all: bool = True) -> Any:
     """Get current user"""
-
-    from wire.providers.oidc.provider import OIDCAuth
 
     async def _get_current_user_with_roles(
         user: UserClaims = Security(OIDCAuth()),

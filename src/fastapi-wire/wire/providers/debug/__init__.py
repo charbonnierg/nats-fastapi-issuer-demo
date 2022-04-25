@@ -7,10 +7,14 @@ from .router import create_debug_router
 
 
 def debug_provider(container: Container[BaseAppSettings]) -> Optional[List[Any]]:
-    # Create the new router
-    router = create_debug_router(container)
-    if router is None:
+    """Provide additional endpoints to the application.
+
+    When OIDC is enabled, those endpoints are protected.
+    """
+    if not container.settings.server.debug:
+        # Return None when debug provider is disabled
         return None
-    # Include router in application
+    router = create_debug_router(container)
     container.app.include_router(router)
+    # The debug router does not provide any additional resource
     return []

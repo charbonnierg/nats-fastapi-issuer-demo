@@ -41,7 +41,17 @@ def get_tracer() -> t.Any:
     import opentelemetry.trace
 
     def tracer_dependency(request: Request) -> opentelemetry.trace.Tracer:
-        return request.app.state.tracer  # type: ignore
+        try:
+            tracer: opentelemetry.trace.Tracer = request.app.state.tracer
+        except AttributeError:
+            # Create and attach tracer if it does not exist yet
+            tracer = opentelemetry.trace.get_tracer(
+                request.app.state.container.meta.name,
+                request.app.state.container.meta.version,
+            )
+            request.app.state.tracer = tracer
+        # Return the tracer
+        return tracer
 
     return Depends(dependency=tracer_dependency)
 
@@ -70,7 +80,8 @@ def get_span_factory(
             ctx = opentelemetry.propagate.extract(
                 carrier=context_carrier or {},
                 getter=t.cast(
-                    opentelemetry.propagate.textmap.Getter, context_getter or {}
+                    opentelemetry.propagate.textmap.Getter,
+                    context_getter or opentelemetry.propagate.textmap.default_getter,
                 ),
             )
             token = opentelemetry.context.attach(ctx)
@@ -88,9 +99,9 @@ def get_span_factory(
         return span, token
 
     def span_factory_dependency(
-        request: Request,
+        tracer: opentelemetry.trace.Tracer = get_tracer(),
     ) -> t.Callable[..., t.Tuple[opentelemetry.trace.Span, t.Optional[object]]]:
-        tracer = request.app.state.tracer
+        """Get a function to create new span within endpoints."""
         # Return partial function
         return functools.partial(
             span_factory,
